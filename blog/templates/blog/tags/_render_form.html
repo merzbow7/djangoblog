@@ -1,0 +1,13 @@
+{# from flask security#}
+{% for field in form %}
+    <p>
+        {{ field.label }} {{ field }}
+        {% if field.errors %}
+            <ul class="list-unstyled">
+                {% for error in field.errors %}
+                    <li class="alert alert-danger">{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </p>
+{% endfor %}

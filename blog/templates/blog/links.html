@@ -1,0 +1,12 @@
+{% extends 'blog/base.html' %}
+{% load blog_tags %}
+{% block content %}
+    <div class="p-5">
+        <ul class="list-unstyled mb-0">
+            {% get_links as links %}
+            {% for link in links %}
+                <li><a href="{{ link }}">{{ link }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

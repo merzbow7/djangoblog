@@ -1,0 +1,70 @@
+{% load static %}
+{% load blog_tags %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="education project flask/python">
+    <title>Flask Дневник</title>
+    <!-- Bootstrap core CSS -->
+
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <link rel="shortcut icon" href="#">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/navbar-top.css' %}" rel="stylesheet">
+    <link href="{% static 'css/blog.css' %}" rel="stylesheet">
+    <link href="{% static 'css/inline_img.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    {% block css %}
+    {% endblock %}
+    {% block scripts %}
+    {% endblock %}
+</head>
+<body>
+
+{% block nav %}
+    {% include 'blog/includes/_navbar.html' %}
+{% endblock %}
+
+<main class="container">
+    <div class="row g-5">
+        <section class="col-md-9">
+            {% block content %}
+            {% endblock %}
+        </section>
+        <section class="col-md-3">
+            {% block side_menu %}
+                {% include 'blog/includes/_sidemenu.html' %}
+            {% endblock %}
+        </section>
+    </div>
+</main>
+
+<footer class="blog-footer">
+    {% block footer %}
+        <p>
+            <a href="">Back to top</a>
+        </p>
+    {% endblock %}
+</footer>
+<script src="{% static 'js/blog.js' %}"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

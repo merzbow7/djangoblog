@@ -1,0 +1,20 @@
+from django.contrib import admin
+
+from blog.models import Post, Comment
+
+
+class PostAdminView(admin.ModelAdmin):
+    list_display = ('title', 'post', 'created_at')
+    list_display_links = ('title', 'post')
+    search_fields = ('title', 'post')
+    prepopulated_fields = {"slug": ("title",)}
+
+
+class CommentAdminView(admin.ModelAdmin):
+    list_display = ('comment', 'created_at')
+    list_display_links = ('comment',)
+    search_fields = ('comment',)
+
+
+admin.site.register(Post, PostAdminView)
+admin.site.register(Comment, CommentAdminView)

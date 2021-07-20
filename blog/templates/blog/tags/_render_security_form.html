@@ -1,0 +1,30 @@
+{# from flask security#}
+{% load blog_tags %}
+<div class="container">
+    <h2 class="text-center">{{ form.prefix }}:</h2>
+    <form class="form-signin shadow p-3 mb-5 bg-body rounded" method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <p>
+                {{ field.label }} {{ field }}
+                {% if field.errors %}
+                    <ul class="list-unstyled ">
+                        {% for error in field.errors %}
+                            <li class="list-group-item">
+                                <span class="alert alert-danger p-1" style="font-size: 0.85em">
+                                    {{ error }}
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </p>
+        {% endfor %}
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors.as_text }}
+            </div>
+        {% endif %}
+        <button class="btn btn-primary">{{ button }}</button>
+    </form>
+</div>

@@ -1,0 +1,32 @@
+{% extends 'blog/base.html' %}
+
+
+{% block content %}
+    <article class="blog-post">
+        <h2 class="blog-post-title">{{ post.title }}</h2>
+        <p>{{ post.post }}</p>
+        {#        {% include "main/_pagenation.html" %}#}
+        <ul class="list-group">
+            {% for comment in post.comments.all %}
+                <div class="position-relative">
+                    <li class="list-group-item">
+                        <p><b class="me-3"> {{ comment.user }}</b> {{ comment.created_at }}</p>
+                        <a class="link-secondary text-decoration-none position-absolute end-0 top-0"
+                           href="{% url 'blog_delete_comment' slug=comment.slug %}">
+                            <i class="bi bi-trash m-2"></i></a>
+                        {{ comment.comment }}
+                    </li>
+                </div>
+            {% endfor %}
+        </ul>
+        {% if form %}
+            <form class="my-3" action="{% url 'blog_post_url' slug=post.slug %}" method="post">
+                <div class="form-row">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button class="btn btn-primary mt-2">Отправить</button>
+                </div>
+            </form>
+        {% endif %}
+    </article>
+{% endblock %}

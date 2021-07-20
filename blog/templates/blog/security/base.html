@@ -1,0 +1,13 @@
+{% extends 'blog/base.html' %}
+{% load blog_tags %}
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet" href={% static  'css/signin.css' %}>
+{% endblock %}
+{% block content %}
+    <section class="row security_body">
+        {% block content_s %}
+        {% endblock %}
+    </section>
+{% endblock %}

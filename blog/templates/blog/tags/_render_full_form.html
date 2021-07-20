@@ -1,0 +1,23 @@
+{# from flask security#}
+{% load blog_tags %}
+<div class="container">
+    <h2 class="text-center">
+        {% if form.instance.id %}{{ _("Edit Post") }}{% else %}{{ _("New Post") }}{% endif %}:
+    </h2>
+    <form class="form-row" method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <p>
+                {{ field.label }} {{ field }}
+                {% if field.errors %}
+                    <ul class="list-unstyled">
+                        {% for error in field.errors %}
+                            <li class="alert alert-danger">{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </p>
+        {% endfor %}
+        <button class="btn btn-primary">{{ button }}</button>
+    </form>
+</div>
