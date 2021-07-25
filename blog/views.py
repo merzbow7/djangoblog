@@ -1,5 +1,6 @@
 from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
 from django.core.handlers.wsgi import HttpRequest
 from django.shortcuts import render, redirect
@@ -8,6 +9,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 
 from .forms import NewPostForm, CommentForm, UserCreationFormBootstrap, AuthenticationFormBootstrap
 from .models import Post, Comment
+from .utils import ConfirmDeleteMixin
 
 
 class IndexBlogView(ListView):
@@ -16,7 +18,7 @@ class IndexBlogView(ListView):
     paginate_by = 3
 
     def get_queryset(self):
-        return Post.objects.all().prefetch_related('comments')
+        return Post.objects.all().prefetch_related('comments').select_related('user')
 
 
 class SelfBlogView(LoginRequiredMixin, ListView):
@@ -26,7 +28,7 @@ class SelfBlogView(LoginRequiredMixin, ListView):
     paginate_by = 3
 
     def get_queryset(self):
-        return Post.objects.filter(user__exact=self.request.user).prefetch_related('comments')
+        return Post.objects.filter(user__exact=self.request.user).prefetch_related('comments').select_related('user')
 
 
 class FeedBlogView(LoginRequiredMixin, ListView):
@@ -36,19 +38,21 @@ class FeedBlogView(LoginRequiredMixin, ListView):
     paginate_by = 3
 
     def get_queryset(self):
-        return Post.objects.all().prefetch_related('comments')
+        return Post.objects.all().prefetch_related('comments').select_related('user')
 
 
 def links(request: HttpRequest):
+    # request.user.is_authenticated
     return render(request, "blog/links.html")
 
 
 class PostView(DetailView):
     model = Post
-    template_name = "blog/post.html"
+    form = CommentForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["user"] = self.request.user
         context["form"] = CommentForm
         return context
 
@@ -82,26 +86,21 @@ class EditPost(LoginRequiredMixin, UpdateView):
     template_name = 'blog/create_or_edit_post.html'
     queryset = Post.objects
 
-
-class DeletePost(LoginRequiredMixin, DeleteView):
-    queryset = Post.objects
-    success_url = reverse_lazy('blog_index')
-
-    def render_to_response(self, context, **response_kwargs):
-        object_ = context["object"]
-        object_.delete()
-        return redirect(self.success_url)
+    def get_queryset(self):
+        Post.objects.select_related('user')
+        return super().get_queryset()
 
 
-class DeleteComment(LoginRequiredMixin, DeleteView):
-    queryset = Comment.objects
+class DeletePost(LoginRequiredMixin, ConfirmDeleteMixin, DeleteView):
+    model = Post
+
+    def get_queryset(self):
+        Post.objects.select_related('user')
+        return super().get_queryset()
+
+
+class DeleteComment(LoginRequiredMixin, ConfirmDeleteMixin, DeleteView):
     model = Comment
-
-    def render_to_response(self, context, **response_kwargs):
-        object_ = context["object"]
-        object_url = object_.post.get_absolute_url()
-        object_.delete()
-        return redirect(object_url)
 
 
 class RegisterUser(CreateView):
@@ -110,16 +109,11 @@ class RegisterUser(CreateView):
     template_name = 'blog/security.html'
     success_url = reverse_lazy('blog_login_user')
 
-    # def get_context_data(self, **kwargs):
-    #     contex = super(RegisterUser, self).get_context_data(**kwargs)
-    #     return contex
-
 
 class LoginUser(LoginView):
     prefix = "Login"
     form_class = AuthenticationFormBootstrap
     template_name = 'blog/security.html'
-    success_url = reverse_lazy('blog_index')
 
     def get_success_url(self):
         return reverse_lazy('blog_index')
@@ -128,3 +122,16 @@ class LoginUser(LoginView):
 def logout_user(request: HttpRequest):
     logout(request)
     return redirect('blog_index')
+
+
+class SubscribersView(ListView):
+    template_name = "blog/subscribers.html"
+    context_object_name = 'current_user'
+
+    def get_queryset(self):
+        return self.request.user
+
+
+class ProfileView(DetailView):
+    model = User
+    template_name = "blog/auth/user_detail.html"

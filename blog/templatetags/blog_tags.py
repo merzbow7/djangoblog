@@ -1,5 +1,5 @@
 from django import template
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from transliterate.utils import _
 
 register = template.Library()
@@ -20,11 +20,11 @@ def skip_first(lst):
 
 
 @register.simple_tag()
-def side_menu():
+def side_menu(user):
     return [
         {"href": reverse('blog_new_post'), "bi_class": "bi bi-plus-lg", "name": "New post"},
-        {'href': "", 'bi_class': "bi bi-person", 'name': "Profile"},
-        {'href': "", 'bi_class': "bi bi-people-fill", 'name': "Subscriptions"},
+        {'href': reverse('blog_profile', kwargs={'pk': user.id}), 'bi_class': "bi bi-person", 'name': "Profile"},
+        {'href': reverse('blog_subscribers'), 'bi_class': "bi bi-people-fill", 'name': "Subscriptions"},
         {'href': reverse('blog_logout'), 'bi_class': "bi bi-box-arrow-right", 'name': "Exit"},
     ]
 

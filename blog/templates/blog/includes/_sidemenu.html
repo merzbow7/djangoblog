@@ -1,7 +1,7 @@
 {% if request.user.is_authenticated %}
     {% load blog_tags %}
     <div class="position-sticky shadow p-3 mb-5 bg-body rounded" style="top: 2rem;">
-    {% side_menu as s_menu %}
+    {% side_menu request.user as s_menu %}
     <div class="p-4">
         <ul class="list-group list-unstyled border-0">
             {% for item in s_menu %}

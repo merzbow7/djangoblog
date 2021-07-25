@@ -22,14 +22,18 @@ urlpatterns = [
     path('', views.IndexBlogView.as_view(), name='blog_index'),
     path('myblog/', views.SelfBlogView.as_view(), name='blog_myblog'),
     path('feed/', views.FeedBlogView.as_view(), name='blog_feed'),
-    path('links/', cache_page(60 * 15)(views.links), name='blog_links'),
+    path('links/', cache_page(60 * 300)(views.links), name='blog_links'),
     path('new_post/', views.NewPost.as_view(), name='blog_new_post'),
+
+    path('subscribers/', views.SubscribersView.as_view(), name='blog_subscribers'),
+    path('profile/<int:pk>', views.ProfileView.as_view(), name='blog_profile'),
+
     path('edit_post/<slug:slug>', views.EditPost.as_view(), name='blog_edit_post'),
     path('post/<slug:slug>', views.PostView.as_view(), name='blog_post_url'),
     path('post_delete/<slug:slug>', views.DeletePost.as_view(), name='blog_delete_post'),
     path('comment_delete/<slug:slug>', views.DeleteComment.as_view(), name='blog_delete_comment'),
-    path('registration/', views.RegisterUser.as_view(), name='blog_register_user'),
 
+    path('registration/', views.RegisterUser.as_view(), name='blog_register_user'),
     path('login/', views.LoginUser.as_view(), name='blog_login_user'),
     path('logout/', views.logout_user, name='blog_logout'),
 

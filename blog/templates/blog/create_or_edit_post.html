@@ -1,5 +1,7 @@
 {% extends 'blog/base.html' %}
 {% load blog_tags %}
 {% block content %}
-    {% render_full_form form=form%}
+    {% if request.user.is_authenticated %}
+        {% render_full_form form=form %}
+    {% endif %}
 {% endblock %}

@@ -1,0 +1,12 @@
+{% extends "blog/base.html" %}
+{% load blog_tags %}
+{% block content %}
+    <form class="form-row" method="post">
+        {% csrf_token %}
+        <p>{{ _("Are you sure you want to delete this?") }}</p>
+        {% if object.title|length %}<b>title:</b><p>{{ object.title }}</p>{% endif %}
+        {% if object.post|length %}<b>post:</b><p>{{ object.post }}</p>{% endif %}
+        {% if object.comment|length %}<b>comment:</b><p>{{ object.comment }}</p>{% endif %}
+        <button class="btn btn-danger" type="submit">{{ _("Delete") }}</button>
+    </form>
+{% endblock %}

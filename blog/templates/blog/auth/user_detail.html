@@ -1,0 +1,13 @@
+{% extends "blog/base.html" %}
+{% load blog_tags %}
+{% block content %}
+    <div class="row">
+        {% block min_profile %}
+            <p><b>{{ user.username }}</b><i class="ms-3">{{ user.last_login }}</i></p>
+            <p>{{ user.person.about }}</p>
+        {% endblock %}
+        {% if request.user == user %}
+            <p>{{ user.email }}</p>
+        {% endif %}
+    </div>
+{% endblock %}

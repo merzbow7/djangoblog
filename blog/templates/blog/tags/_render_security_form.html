@@ -4,6 +4,7 @@
     <h2 class="text-center">{{ form.prefix }}:</h2>
     <form class="form-signin shadow p-3 mb-5 bg-body rounded" method="post">
         {% csrf_token %}
+        {% if error_message %}<p class="alert alert-danger">{{ error_message }}</p>{% endif %}
         {% for field in form %}
             <p>
                 {{ field.label }} {{ field }}
@@ -26,5 +27,13 @@
             </div>
         {% endif %}
         <button class="btn btn-primary">{{ button }}</button>
+        <div class="mt-4 d-flex justify-content-around">
+            <ul class="list-group list-group-horizontal">
+                <li class="list-group-item"><a href="{% url 'blog_login_user' %}">{{ _('Login') }}</a></li>
+                <li class="list-group-item"><a href="{% url 'blog_register_user' %}">{{ _('Registration') }}</a></li>
+            </ul>
+        </div>
     </form>
+
+
 </div>

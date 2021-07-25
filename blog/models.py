@@ -1,20 +1,20 @@
-import time
-
 from django.contrib.auth.models import User
 from django.db import models
 from django.shortcuts import reverse
-from django.template import defaultfilters
-from unidecode import unidecode
+
+from .utils import SlugMixin
 
 
-class SlugMixin:
+class Person(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    photo = models.ImageField(upload_to="avatar/%u")
+    about = models.TextField(max_length=255, blank=False, db_index=True)
 
-    @classmethod
-    def create_slug(cls, data: str) -> str:
-        slug = defaultfilters.slugify(unidecode(data[:50]))
-        while cls.objects.filter(slug__exact=slug).count():
-            slug += f"-{int(time.time())}"
-        return slug
+
+class UserFollowing(models.Model):
+    from_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
+    to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers')
+    sub_at = models.DateTimeField(auto_now_add=True)
 
 
 class Post(SlugMixin, models.Model):
@@ -33,6 +33,9 @@ class Post(SlugMixin, models.Model):
         if not self.slug:
             self.slug = self.create_slug(self.title)
         super().save(*args, **kwargs)
+
+    def get_parent_url(self):
+        return reverse('blog_index')
 
     def get_absolute_url(self):
         return reverse('blog_post_url', kwargs={'slug': self.slug})
@@ -55,6 +58,9 @@ class Comment(SlugMixin, models.Model):
         ordering = ['-created_at']
         verbose_name = 'Комментарии пользователей'
         verbose_name_plural = 'Комментарии пользователей'
+
+    def get_parent_url(self):
+        return self.post.get_absolute_url()
 
     def save(self, *args, **kwargs):
         self.slug = self.create_slug(self.comment)

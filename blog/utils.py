@@ -1,52 +1,45 @@
-from django.core.handlers.wsgi import HttpRequest
-from django.core.paginator import Paginator
-from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
-from django.urls import reverse
+import time
 
-from .forms import NewPostForm
-from .models import Post
-
-
-class BaseBlogMixin:
-    posts = None
-
-    def get(self, request: HttpRequest) -> HttpResponse:
-        page_number = request.GET.get('page', 1)
-        pages = Paginator(self.posts(), 3)
-        page = pages.get_page(page_number)
-        context = {"page": page}
-        return render(request, "blog/index.html", context=context)
+from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpRequest
+from django.shortcuts import redirect
+from django.template import defaultfilters
+from unidecode import unidecode
 
 
-class BasePostMixin:
-    header = None
-    href = None
-
-    def get_post(self, slug: str):
-        return get_object_or_404(Post, slug__iexact=slug) if slug else None
-
-    def get(self, request: HttpRequest, *, slug=None) -> HttpResponse:
-        post = self.get_post(slug)
-        context = {"form": NewPostForm(instance=post),
-                   "header": self.header,
-                   "href": reverse(self.href, kwargs={'slug': slug} if slug else None)
-                   }
-        return render(request, "blog/create_or_edit_post.html", context=context)
-
-    def post(self, request: HttpRequest, *, slug=None) -> HttpResponse:
-        old_post = self.get_post(slug)
-        bound_form = NewPostForm(request.POST, instance=old_post)
-        if bound_form.is_valid():
-            bound_form.save()
-            return redirect('blog_index')
-        else:
-            return render(request, "blog/create_or_edit_post.html", context={'form': bound_form})
+class RedirectOnDeleteMixin:
+    def render_to_response(self, context, **response_kwargs):
+        print(context)
+        print(response_kwargs)
+        object_ = context["object"]
+        parent_url = object_.get_parent_url()
+        # object_.delete()
+        return redirect(parent_url)
 
 
-class DeleteObjectMixin:
-    obj = None
+class ConfirmDeleteMixin:
+    template_name = "blog/instance_confirm_delete.html"
 
-    def get(self, request: HttpRequest, slug: str = None) -> HttpResponse:
-        item = get_object_or_404(self.obj, slug__iexact=slug)
-        item.delete()
-        return redirect(request.headers['Referer'])
+    def delete(self, request: HttpRequest, *args, **kwargs):
+        """
+        delete if user have permissions else 403
+        """
+        try:
+            to_delete = self.model.objects.get(slug__iexact=kwargs.get('slug'))
+            if to_delete.user != request.user:
+                return HttpResponseForbidden()
+        except self.model.DoesNotExist:
+            return HttpResponseNotFound()
+        return super().delete(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return self.object.get_parent_url()
+
+
+class SlugMixin:
+
+    @classmethod
+    def create_slug(cls, data: str) -> str:
+        slug = defaultfilters.slugify(unidecode(data[:50]))
+        while cls.objects.filter(slug__exact=slug).count():
+            slug += f"-{int(time.time())}"
+        return slug

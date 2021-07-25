@@ -2,24 +2,26 @@
 
 {% block content %}
     {% for post in post_list %}
-        {#        {% set post_href = url_for("main.post", post_hash=post.hash_name) %}#}
         <article class="blog-post shadow p-3 mb-5 bg-body rounded"
                  onclick="window.location.href = '{{ post.get_absolute_url }}'">
             <a class="text-decoration-none link-dark" href="{{ post.get_absolute_url }}">
                 <div class="position-relative">
                     <h2 class="blog-post-title ">{{ post.title }}</h2>
-                    <div class="position-absolute end-0 top-0">
-                        <a class="link-secondary text-decoration-none" href="{% url 'blog_edit_post' slug=post.slug %}">
-                            <i class="bi bi-pencil-square"> </i></a>
-                        <a class="link-secondary text-decoration-none"
-                           href="{% url 'blog_delete_post' slug=post.slug %}">
-                            <i class="bi bi-trash"> </i></a>
-                    </div>
+                    {% if request.user.is_authenticated and request.user == post.user  %}
+                        <div class="position-absolute end-0 top-0">
+                            <a class="link-secondary text-decoration-none"
+                               href="{% url 'blog_edit_post' slug=post.slug %}">
+                                <i class="bi bi-pencil-square"> </i></a>
+                            <a class="link-secondary text-decoration-none"
+                               href="{% url 'blog_delete_post' slug=post.slug %}">
+                                <i class="bi bi-trash"> </i></a>
+                        </div>
+                    {% endif %}
                 </div>
             </a>
             <p class="blog-post-meta">{{ post.created_at }}
-                <a class="link-popover" href="">{{ user.username }}</a>
-                    {#                <a class="link-popover" data-bs-toggle="popover"#}
+                <a class="link-popover" href="">{{ post.user.username }}</a>
+                {#                <a class="link-popover" data-bs-toggle="popover"#}
             </p>
             <p>{{ post.post }}</p>
             <p class="blog-post-meta border-2 border-top">

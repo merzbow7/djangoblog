@@ -136,3 +136,7 @@ CACHES = {
         'LOCATION': BASE_DIR / "cache",
     }
 }
+
+MEDIA_ROOT = BASE_DIR / "media"
+
+MEDIA_URL = "/media/"
