@@ -8,7 +8,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from .forms import NewPostForm, CommentForm, UserCreationFormBootstrap, AuthenticationFormBootstrap
-from .models import Post, Comment
+from .models import Post, Comment, UserFollowing
 from .utils import ConfirmDeleteMixin
 
 
@@ -43,6 +43,7 @@ class FeedBlogView(LoginRequiredMixin, ListView):
 
 def links(request: HttpRequest):
     # request.user.is_authenticated
+
     return render(request, "blog/links.html")
 
 
@@ -50,9 +51,12 @@ class PostView(DetailView):
     model = Post
     form = CommentForm
 
+    def get_queryset(self):
+        return Post.objects.filter(slug__exact=self.kwargs.get("slug"))
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["user"] = self.request.user
+        context["comments"] = Comment.objects.filter(post__slug__exact=self.kwargs.get("slug")).select_related("user")
         context["form"] = CommentForm
         return context
 
@@ -135,3 +139,26 @@ class SubscribersView(ListView):
 class ProfileView(DetailView):
     model = User
     template_name = "blog/auth/user_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            is_follow = UserFollowing.objects.filter(from_user=self.request.user,
+                                                     to_user=self.kwargs.get('pk'))
+            context["is_follow"] = is_follow
+        else:
+            context["is_follow"] = False
+        return context
+
+    def post(self, request: HttpRequest, *args, **kwargs):
+        current_pk = self.kwargs.get("pk")
+        if 'Subscribe' in request.POST:
+            UserFollowing.objects.create(from_user=request.user,
+                                         to_user=User.objects.get(pk=current_pk))
+        if 'Unsubscribe' in request.POST:
+            UserFollowing.objects.get(from_user=request.user,
+                                      to_user=User.objects.get(pk=current_pk)).delete()
+        return redirect(reverse_lazy('blog_profile', kwargs={"pk": current_pk}))
+
+    def get_queryset(self):
+        return User.objects.filter(pk__exact=self.kwargs.get('pk'))

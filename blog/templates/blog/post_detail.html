@@ -4,16 +4,17 @@
         <h2 class="blog-post-title">{{ post.title }}</h2>
         <p>{{ post.post }}</p>
         <ul class="list-group">
-            {% for comment in post.comments.all %}
+            {% for object in comments.all %}
                 <div class="position-relative">
                     <li class="list-group-item my-2 border-0 border-bottom">
-                        <p class="my-1"><b class="me-3"> {{ comment.user }}</b> {{ comment.created_at }}</p>
-                        {% if user.is_authenticated and comment.user == user %}
+                        <p class="my-1"><b class="me-3">{% include "blog/includes/_username.html" %}</b>
+                            {{ object.created_at }}</p>
+                        {% if user.is_authenticated and object.user == user %}
                             <a class="link-secondary text-decoration-none position-absolute end-0 top-0"
-                               href="{% url 'blog_delete_comment' slug=comment.slug %}">
+                               href="{% url 'blog_delete_comment' slug=object.slug %}">
                                 <i class="bi bi-trash m-2"></i></a>
                         {% endif %}
-                        {{ comment.comment }}
+                        {{ object.comment }}
                     </li>
                 </div>
             {% endfor %}

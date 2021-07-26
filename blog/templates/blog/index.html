@@ -1,31 +1,30 @@
 {% extends 'blog/base.html' %}
 
 {% block content %}
-    {% for post in post_list %}
+    {% for object in object_list %}
         <article class="blog-post shadow p-3 mb-5 bg-body rounded"
-                 onclick="window.location.href = '{{ post.get_absolute_url }}'">
-            <a class="text-decoration-none link-dark" href="{{ post.get_absolute_url }}">
+                 onclick="window.location.href = '{{ object.get_absolute_url }}'">
+            <a class="text-decoration-none link-dark" href="{{ object.get_absolute_url }}">
                 <div class="position-relative">
-                    <h2 class="blog-post-title ">{{ post.title }}</h2>
-                    {% if request.user.is_authenticated and request.user == post.user  %}
+                    <h2 class="blog-post-title ">{{ object.title }}</h2>
+                    {% if request.user.is_authenticated and request.user == object.user  %}
                         <div class="position-absolute end-0 top-0">
                             <a class="link-secondary text-decoration-none"
-                               href="{% url 'blog_edit_post' slug=post.slug %}">
+                               href="{% url 'blog_edit_post' slug=object.slug %}">
                                 <i class="bi bi-pencil-square"> </i></a>
                             <a class="link-secondary text-decoration-none"
-                               href="{% url 'blog_delete_post' slug=post.slug %}">
+                               href="{% url 'blog_delete_post' slug=object.slug %}">
                                 <i class="bi bi-trash"> </i></a>
                         </div>
                     {% endif %}
                 </div>
             </a>
-            <p class="blog-post-meta">{{ post.created_at }}
-                <a class="link-popover" href="">{{ post.user.username }}</a>
-                {#                <a class="link-popover" data-bs-toggle="popover"#}
+            <p class="blog-post-meta">{{ object.created_at }}
+                {% include "blog/includes/_username.html" %}
             </p>
-            <p>{{ post.post }}</p>
+            <p>{{ object.post }}</p>
             <p class="blog-post-meta border-2 border-top">
-                Commets: {{ post.comments.count }}</p>
+                Commets: {{ object.comments.count }}</p>
         </article>
     {% endfor %}
     {% include 'blog/includes/_pagenation.html' %}

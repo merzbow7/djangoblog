@@ -3,11 +3,30 @@
 {% block content %}
     <div class="row">
         {% block min_profile %}
-            <p><b>{{ user.username }}</b><i class="ms-3">{{ user.last_login }}</i></p>
-            <p>{{ user.person.about }}</p>
+            <div class="border border-2 border-secondary p-2 position-relative">
+                <p><b class="me-3">{{ user.username }}</b>
+                    {{ _("Last seen") }}:<i class="ms-1">{{ user.last_login }}</i></p>
+                <p>{{ user.person.about }}</p>
+                {% if request.user.is_authenticated %}
+                    <form method="post">
+                        {% csrf_token %}
+                        {% if is_follow %}
+                            <button class="btn btn-outline-danger m-2 position-absolute end-0 top-0" name="Unsubscribe">
+                                {{ _("Unsubscribe") }}
+                            </button>
+                        {% else %}
+                            <button class="btn btn-outline-success m-2 position-absolute end-0 top-0" name="Subscribe">
+                                {{ _("Subscribe") }}
+                            </button>
+                        {% endif %}
+                    </form>
+                {% endif %}
+            </div>
         {% endblock %}
         {% if request.user == user %}
-            <p>{{ user.email }}</p>
+            <div class="my-2">
+                <p>{{ user.email }}</p>
+            </div>
         {% endif %}
     </div>
 {% endblock %}
