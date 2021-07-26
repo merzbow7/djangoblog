@@ -1,19 +1,8 @@
 import time
 
 from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpRequest
-from django.shortcuts import redirect
 from django.template import defaultfilters
 from unidecode import unidecode
-
-
-class RedirectOnDeleteMixin:
-    def render_to_response(self, context, **response_kwargs):
-        print(context)
-        print(response_kwargs)
-        object_ = context["object"]
-        parent_url = object_.get_parent_url()
-        # object_.delete()
-        return redirect(parent_url)
 
 
 class ConfirmDeleteMixin:

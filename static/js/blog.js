@@ -16,17 +16,6 @@ function makeFriendship(_url, user) {
     this.classList.toggle("bi-person-plus");
 }
 
-function makeSpinner() {
-    return '<div className="spinner-border text-warning" role="status"><span className="visually-hidden">Loading...</span></div>'
-
-}
-
-function sleep(miliseconds) {
-    let currentTime = new Date().getTime();
-    while (currentTime + miliseconds >= new Date().getTime()) {
-    }
-}
-
 
 function getPopover() {
     if (!this.popper) {

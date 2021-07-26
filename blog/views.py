@@ -13,9 +13,8 @@ from .utils import ConfirmDeleteMixin
 
 
 class IndexBlogView(ListView):
-    model = Post
     template_name = "blog/index.html"
-    paginate_by = 3
+    paginate_by = 5
 
     def get_queryset(self):
         return Post.objects.all().prefetch_related('comments').select_related('user')
@@ -23,9 +22,8 @@ class IndexBlogView(ListView):
 
 class SelfBlogView(LoginRequiredMixin, ListView):
     login_url = reverse_lazy("blog_login_user")
-    model = Post
     template_name = "blog/index.html"
-    paginate_by = 3
+    paginate_by = 5
 
     def get_queryset(self):
         return Post.objects.filter(user__exact=self.request.user).prefetch_related('comments').select_related('user')
@@ -33,22 +31,20 @@ class SelfBlogView(LoginRequiredMixin, ListView):
 
 class FeedBlogView(LoginRequiredMixin, ListView):
     login_url = reverse_lazy("blog_login_user")
-    model = Post
     template_name = "blog/index.html"
-    paginate_by = 3
+    paginate_by = 5
 
     def get_queryset(self):
-        return Post.objects.all().prefetch_related('comments').select_related('user')
+        posts = Post.objects.filter(user__followers__from_user=self.request.user)
+        return posts.prefetch_related('comments').select_related('user')
 
 
 def links(request: HttpRequest):
     # request.user.is_authenticated
-
     return render(request, "blog/links.html")
 
 
 class PostView(DetailView):
-    model = Post
     form = CommentForm
 
     def get_queryset(self):
@@ -88,7 +84,6 @@ class NewPost(LoginRequiredMixin, CreateView):
 class EditPost(LoginRequiredMixin, UpdateView):
     form_class = NewPostForm
     template_name = 'blog/create_or_edit_post.html'
-    queryset = Post.objects
 
     def get_queryset(self):
         Post.objects.select_related('user')
@@ -96,7 +91,6 @@ class EditPost(LoginRequiredMixin, UpdateView):
 
 
 class DeletePost(LoginRequiredMixin, ConfirmDeleteMixin, DeleteView):
-    model = Post
 
     def get_queryset(self):
         Post.objects.select_related('user')
